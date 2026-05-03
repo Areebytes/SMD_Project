@@ -1,27 +1,31 @@
 package com.example.smd_project;
+
 public class Property {
 
     private String  id;
     private String  name;
     private String  type;       // "Apartment", "Villa", "House"
     private String  location;
-    private int  price;
+    private int     price;
     private boolean isFeatured;
+    private String  imageUrl;
 
     public Property(String id, String name, String type,
-                    String location, int price, boolean isFeatured) {
+                    String location, int price, boolean isFeatured, String imageUrl) {
         this.id         = id;
         this.name       = name;
         this.type       = type;
         this.location   = location;
         this.price      = price;
         this.isFeatured = isFeatured;
+        this.imageUrl   = imageUrl;
     }
 
     public String  getId()         { return id; }
     public String  getName()       { return name; }
     public String  getType()       { return type; }
     public String  getLocation()   { return location; }
-    public int  getPrice()      { return price; }
+    public int     getPrice()      { return price; }
     public boolean isFeatured()    { return isFeatured; }
+    public String  getImageUrl()   { return imageUrl; }
 }

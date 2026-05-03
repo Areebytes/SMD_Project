@@ -1,42 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
-    android:padding="24dp">
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:background="@color/bg_light">
+
+    <ImageView
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/splash_logo"
+        android:layout_marginBottom="24dp"/>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign Up"
+        android:text="Create Account"
         android:textSize="28sp"
         android:textStyle="bold"
+        android:textColor="@color/primary" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start your journey with us"
+        android:textSize="16sp"
+        android:textColor="@color/text_muted"
         android:layout_marginBottom="32dp" />
 
     <EditText
         android:id="@+id/et_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:hint="Full Name"
         android:inputType="textPersonName"
+        android:paddingHorizontal="16dp"
+        android:background="@drawable/bg_input_field"
         android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/et_email"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:hint="Email"
         android:inputType="textEmailAddress"
+        android:paddingHorizontal="16dp"
+        android:background="@drawable/bg_input_field"
         android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/et_password"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:hint="Password"
         android:inputType="textPassword"
+        android:paddingHorizontal="16dp"
+        android:background="@drawable/bg_input_field"
         android:layout_marginBottom="24dp" />
 
     <ProgressBar
@@ -44,20 +67,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        android:layout_marginBottom="8dp" />
+        android:indeterminateTint="@color/primary"
+        android:layout_marginBottom="16dp" />
 
     <Button
         android:id="@+id/btn_signup"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:text="Sign Up"
-        android:layout_marginBottom="16dp" />
+        android:backgroundTint="@color/primary"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="12dp"
+        android:layout_marginBottom="24dp" />
 
     <TextView
         android:id="@+id/tv_login"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Already have an account? Login"
-        android:textColor="@color/teal" />
+        android:textColor="@color/accent"
+        android:textStyle="bold"
+        android:textSize="14sp" />
 
 </LinearLayout>

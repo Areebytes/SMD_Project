@@ -8,30 +8,36 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.LinearLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class SearchResultsFragment extends Fragment {
 
     private PropertyAdapter adapter;
     private List<Property>  allProperties;
     private TextView        tvResultCount;
+    private LinearLayout    layoutEmpty;
+    private FirebaseFirestore db;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search_results, container, false);
 
-        allProperties = getDummyProperties();
+        allProperties = new ArrayList<>();
         tvResultCount = view.findViewById(R.id.tv_result_count);
+        layoutEmpty = view.findViewById(R.id.layout_empty);
 
         RecyclerView recycler = view.findViewById(R.id.recycler_results);
         recycler.setLayoutManager(new LinearLayoutManager(getContext()));
-        
-        adapter = new PropertyAdapter(allProperties, property -> {
+
+        adapter = new PropertyAdapter(getContext(), allProperties, property -> {
+            if (property == null) return;
             Bundle bundle = new Bundle();
             bundle.putString("id", property.getId());
             bundle.putString("name", property.getName());
@@ -39,15 +45,51 @@ public class SearchResultsFragment extends Fragment {
             bundle.putString("location", property.getLocation());
             bundle.putInt("price", property.getPrice());
             bundle.putBoolean("featured", property.isFeatured());
+            bundle.putString("imageUrl", property.getImageUrl());
 
             PropertyDetailFragment detailFragment = new PropertyDetailFragment();
             detailFragment.setArguments(bundle);
 
-            ((MainActivity) requireActivity()).loadFragment(detailFragment);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(detailFragment);
+            }
         });
         
         recycler.setAdapter(adapter);
-        updateCount(allProperties.size());
+        db = FirebaseFirestore.getInstance();
+        db.collection("properties")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (!isAdded()) return;
+                    
+                    allProperties.clear();
+                    for (var doc : queryDocumentSnapshots) {
+                        Object featuredObj = doc.get("featured");
+                        boolean featured = false;
+                        if (featuredObj instanceof Boolean) {
+                            featured = (Boolean) featuredObj;
+                        } else if (featuredObj instanceof String) {
+                            featured = Boolean.parseBoolean((String) featuredObj);
+                        }
+
+                        Long priceLong = doc.getLong("price");
+                        int price = (priceLong != null) ? priceLong.intValue() : 0;
+
+                        Property property = new Property(
+                                doc.getString("id"),
+                                doc.getString("name"),
+                                doc.getString("type"),
+                                doc.getString("location"),
+                                price,
+                                featured,
+                                doc.getString("image")
+                        );
+                        allProperties.add(property);
+                    }
+
+                    adapter.updateList(new ArrayList<>(allProperties));
+                    updateCount(allProperties.size());
+                });
 
         EditText etSearch = view.findViewById(R.id.et_search);
         etSearch.addTextChangedListener(new TextWatcher() {
@@ -58,36 +100,57 @@ public class SearchResultsFragment extends Fragment {
             }
         });
 
-        view.findViewById(R.id.btn_back).setOnClickListener(v ->
-                requireActivity().getSupportFragmentManager().popBackStack());
+        // Filter Bottom Sheet Integration
+        view.findViewById(R.id.btn_filter).setOnClickListener(v -> {
+            FilterBottomSheet filterSheet = new FilterBottomSheet();
+            filterSheet.setListener((type, min, max) -> {
+                List<Property> filtered = new ArrayList<>();
+                for (Property p : allProperties) {
+                    boolean matchesType = type.equalsIgnoreCase("All") || 
+                                          (p.getType() != null && p.getType().equalsIgnoreCase(type));
+                    boolean matchesPrice = p.getPrice() >= min && p.getPrice() <= max;
+                    
+                    if (matchesType && matchesPrice) {
+                        filtered.add(p);
+                    }
+                }
+                adapter.updateList(filtered);
+                updateCount(filtered.size());
+            });
+            filterSheet.show(getChildFragmentManager(), "FilterBottomSheet");
+        });
+
+        view.findViewById(R.id.btn_back).setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
 
         return view;
     }
 
     private void filterSearch(String query) {
+        if (allProperties == null) return;
         List<Property> filtered = new ArrayList<>();
         for (Property p : allProperties) {
-            if (p.getName().toLowerCase().contains(query.toLowerCase())
-                    || p.getType().toLowerCase().contains(query.toLowerCase())) {
+            boolean matchesName = p.getName() != null && p.getName().toLowerCase().contains(query.toLowerCase());
+            boolean matchesType = p.getType() != null && p.getType().toLowerCase().contains(query.toLowerCase());
+            if (matchesName || matchesType) {
                 filtered.add(p);
             }
         }
-        adapter.updateList(filtered);
-        updateCount(filtered.size());
+        if (adapter != null) {
+            adapter.updateList(filtered);
+            updateCount(filtered.size());
+        }
     }
 
     private void updateCount(int count) {
-        tvResultCount.setText(count + " Ads Found");
-    }
-
-    private List<Property> getDummyProperties() {
-        List<Property> list = new ArrayList<>();
-        list.add(new Property("1", "Exclusive House",   "Apartment", "134 Alabaster, AL",  120000, false));
-        list.add(new Property("2", "Charming Villa",    "Villa",     "4735 Lafayette, AL", 250500, false));
-        list.add(new Property("3", "Blue Star Villa",   "Villa",     "4272 Kent Dairy, AL", 165000, true));
-        list.add(new Property("4", "Luxury Smart Villa", "Villa",    "2734 Lafayette, AL", 275800, true));
-        list.add(new Property("5", "Big Central Villa",  "Villa",    "4632 Kent Dairy, AL", 310000, true));
-        list.add(new Property("6", "Modern House",      "House",     "12 Silver St, AL",   198000, false));
-        return list;
+        if (tvResultCount != null) {
+            tvResultCount.setText(count + " Ads Found");
+        }
+        if (layoutEmpty != null) {
+            layoutEmpty.setVisibility(count == 0 ? View.VISIBLE : View.GONE);
+        }
     }
 }

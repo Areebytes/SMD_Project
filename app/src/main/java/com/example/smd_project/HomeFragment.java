@@ -1,10 +1,12 @@
 package com.example.smd_project;
+
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -12,32 +14,38 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
 import java.util.ArrayList;
 import java.util.List;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class HomeFragment extends Fragment {
 
     private RecyclerView     recyclerView;
     private PropertyAdapter  adapter;
     private List<Property>   allProperties;
+    private FirebaseFirestore db;
+    private ProgressBar      progressBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // Greeting with Firebase user email
         TextView tvGreeting = view.findViewById(R.id.tv_greeting);
+        progressBar = view.findViewById(R.id.progress_bar);
+        
         FirebaseAuth auth = FirebaseAuth.getInstance();
         if (auth.getCurrentUser() != null) {
-            tvGreeting.setText("Hello, " + auth.getCurrentUser().getEmail());
+            String email = auth.getCurrentUser().getEmail();
+            tvGreeting.setText("Hello, " + (email != null ? email : "User"));
         }
 
-        // Load dummy data
-        allProperties = getDummyProperties();
+        db = FirebaseFirestore.getInstance();
+        allProperties = new ArrayList<>();
 
-        // RecyclerView — 2 column grid
         recyclerView = view.findViewById(R.id.recycler_properties);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        adapter = new PropertyAdapter(allProperties, property -> {
+        
+        adapter = new PropertyAdapter(getContext(), allProperties, property -> {
+            if (property == null) return;
             Bundle bundle = new Bundle();
             bundle.putString("id", property.getId());
             bundle.putString("name", property.getName());
@@ -45,36 +53,107 @@ public class HomeFragment extends Fragment {
             bundle.putString("location", property.getLocation());
             bundle.putInt("price", property.getPrice());
             bundle.putBoolean("featured", property.isFeatured());
+            bundle.putString("imageUrl", property.getImageUrl());
 
             PropertyDetailFragment detailFragment = new PropertyDetailFragment();
             detailFragment.setArguments(bundle);
 
-            ((MainActivity) requireActivity()).loadFragment(detailFragment);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(detailFragment);
+            }
         });
+        
         recyclerView.setAdapter(adapter);
-        recyclerView.addItemDecoration(new GridSpacingItemDecoration(16));
+        
+        if (recyclerView.getItemDecorationCount() == 0) {
+            recyclerView.addItemDecoration(new GridSpacingItemDecoration(16));
+        }
 
-        // Category chip clicks
+        progressBar.setVisibility(View.VISIBLE);
+        db.collection("properties")
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (isAdded()) {
+                        progressBar.setVisibility(View.GONE);
+                        allProperties.clear();
+                        for (var doc : queryDocumentSnapshots) {
+                            Object featuredObj = doc.get("featured");
+                            boolean featured = false;
+                            if (featuredObj instanceof Boolean) {
+                                featured = (Boolean) featuredObj;
+                            } else if (featuredObj instanceof String) {
+                                featured = Boolean.parseBoolean((String) featuredObj);
+                            }
+
+                            Long priceLong = doc.getLong("price");
+                            int price = (priceLong != null) ? priceLong.intValue() : 0;
+
+                            Property property = new Property(
+                                    doc.getString("id"),
+                                    doc.getString("name"),
+                                    doc.getString("type"),
+                                    doc.getString("location"),
+                                    price,
+                                    featured,
+                                    doc.getString("image")
+                            );
+                            allProperties.add(property);
+                        }
+                        adapter.updateList(new ArrayList<>(allProperties));
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    if (isAdded()) progressBar.setVisibility(View.GONE);
+                });
+
         view.findViewById(R.id.chip_all).setOnClickListener(v ->
-                adapter.updateList(allProperties));
+                adapter.updateList(new ArrayList<>(allProperties)));
+        
         view.findViewById(R.id.chip_villa).setOnClickListener(v ->
                 adapter.updateList(filterByType("Villa")));
+        
         view.findViewById(R.id.chip_apartment).setOnClickListener(v ->
                 adapter.updateList(filterByType("Apartment")));
+        
         view.findViewById(R.id.chip_house).setOnClickListener(v ->
                 adapter.updateList(filterByType("House")));
 
-        // Search bar — tap opens SearchResultsFragment
         EditText etSearch = view.findViewById(R.id.et_search);
         etSearch.setFocusable(false);
         etSearch.setOnClickListener(v -> {
-            Bundle args = new Bundle();
-            args.putString("query", "");
-            SearchResultsFragment searchFrag = new SearchResultsFragment();
-            searchFrag.setArguments(args);
-            ((MainActivity) requireActivity())
-                    .loadFragment(searchFrag);
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new SearchResultsFragment());
+            }
+        });
 
+        view.findViewById(R.id.btn_filter).setOnClickListener(v -> {
+            FilterBottomSheet filterSheet = new FilterBottomSheet();
+            filterSheet.setListener((type, min, max) -> {
+                if (type.equalsIgnoreCase("All") && min == 0 && max == Integer.MAX_VALUE) {
+                    adapter.updateList(new ArrayList<>(allProperties));
+                    return;
+                }
+
+                List<Property> filtered = new ArrayList<>();
+                for (Property p : allProperties) {
+                    boolean matchesType = type.equalsIgnoreCase("All") || 
+                                          (p.getType() != null && p.getType().equalsIgnoreCase(type));
+                    boolean matchesPrice = p.getPrice() >= min && p.getPrice() <= max;
+                    
+                    if (matchesType && matchesPrice) {
+                        filtered.add(p);
+                    }
+                }
+                adapter.updateList(filtered);
+            });
+            filterSheet.show(getChildFragmentManager(), "FilterBottomSheet");
+        });
+
+        // 🔧 UI Polish: Navigation to Profile
+        view.findViewById(R.id.btn_profile).setOnClickListener(v -> {
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).loadFragment(new ProfileFragment());
+            }
         });
 
         return view;
@@ -83,23 +162,14 @@ public class HomeFragment extends Fragment {
     private List<Property> filterByType(String type) {
         List<Property> filtered = new ArrayList<>();
         for (Property p : allProperties) {
-            if (p.getType().equalsIgnoreCase(type)) filtered.add(p);
+            if (p.getType() != null && p.getType().equalsIgnoreCase(type)) {
+                filtered.add(p);
+            }
         }
         return filtered;
     }
 
-    private List<Property> getDummyProperties() {
-        List<Property> list = new ArrayList<>();
-        list.add(new Property("1", "Exclusive House",  "Apartment", "134 Alabaster, AL",  120000, false));
-        list.add(new Property("2", "Charming Villa",   "Villa",     "4735 Lafayette, AL", 250500, false));
-        list.add(new Property("3", "Blue Star Villa",  "Villa",     "4272 Kent Dairy, AL",165000, true));
-        list.add(new Property("4", "Luxury Smart Villa","Villa",    "2734 Lafayette, AL", 275800, true));
-        list.add(new Property("5", "Big Central Villa", "Villa",    "4632 Kent Dairy, AL",310000, true));
-        list.add(new Property("6", "Modern House",     "House",     "12 Silver St, AL",   198000, false));
-        return list;
-    }
-
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+    public static class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
         private final int spacing;
 
         public GridSpacingItemDecoration(int spacing) {
