@@ -74,7 +74,7 @@ public class SignupFragment extends Fragment {
                     }
 
                     // Go to MainActivity
-                    Intent intent = new Intent(getActivity(), HomeFragment.class);
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK |
                             Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);

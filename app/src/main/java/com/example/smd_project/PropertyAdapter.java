@@ -12,8 +12,9 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
 
     private List<Property> propertyList;
 
-    public PropertyAdapter(List<Property> propertyList) {
+    public PropertyAdapter(List<Property> propertyList, OnItemClickListener listener) {
         this.propertyList = propertyList;
+        this.listener = listener;
     }
 
     // Call this to refresh list (e.g. after filter)
@@ -35,9 +36,12 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
         holder.tvType.setText(p.getType().toUpperCase());
         holder.tvName.setText(p.getName());
         holder.tvLocation.setText(p.getLocation());
-        holder.tvPrice.setText(p.getPrice());
+        holder.tvPrice.setText("$" + String.format("%,d", p.getPrice()));
         holder.tvFeatured.setVisibility(
                 p.isFeatured() ? View.VISIBLE : View.GONE);
+        holder.itemView.setOnClickListener(v -> {
+            listener.onItemClick(p);
+        });
     }
 
     @Override
@@ -55,4 +59,11 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
             tvFeatured = itemView.findViewById(R.id.tv_featured);
         }
     }
+
+    public interface OnItemClickListener {
+
+        void onItemClick(Property property);
+
+    }
+    private OnItemClickListener listener;
 }

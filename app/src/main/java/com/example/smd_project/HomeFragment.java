@@ -1,4 +1,5 @@
 package com.example.smd_project;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,8 +37,22 @@ public class HomeFragment extends Fragment {
         // RecyclerView — 2 column grid
         recyclerView = view.findViewById(R.id.recycler_properties);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
-        adapter = new PropertyAdapter(allProperties);
+        adapter = new PropertyAdapter(allProperties, property -> {
+            Bundle bundle = new Bundle();
+            bundle.putString("id", property.getId());
+            bundle.putString("name", property.getName());
+            bundle.putString("type", property.getType());
+            bundle.putString("location", property.getLocation());
+            bundle.putInt("price", property.getPrice());
+            bundle.putBoolean("featured", property.isFeatured());
+
+            PropertyDetailFragment detailFragment = new PropertyDetailFragment();
+            detailFragment.setArguments(bundle);
+
+            ((MainActivity) requireActivity()).loadFragment(detailFragment);
+        });
         recyclerView.setAdapter(adapter);
+        recyclerView.addItemDecoration(new GridSpacingItemDecoration(16));
 
         // Category chip clicks
         view.findViewById(R.id.chip_all).setOnClickListener(v ->
@@ -57,10 +72,9 @@ public class HomeFragment extends Fragment {
             args.putString("query", "");
             SearchResultsFragment searchFrag = new SearchResultsFragment();
             searchFrag.setArguments(args);
-            requireActivity().getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.auth_container, searchFrag)                    .addToBackStack(null)
-                    .commit();
+            ((MainActivity) requireActivity())
+                    .loadFragment(searchFrag);
+
         });
 
         return view;
@@ -76,12 +90,29 @@ public class HomeFragment extends Fragment {
 
     private List<Property> getDummyProperties() {
         List<Property> list = new ArrayList<>();
-        list.add(new Property("1", "Exclusive House",  "Apartment", "134 Alabaster, AL",  "$120,000", false));
-        list.add(new Property("2", "Charming Villa",   "Villa",     "4735 Lafayette, AL", "$250,500", false));
-        list.add(new Property("3", "Blue Star Villa",  "Villa",     "4272 Kent Dairy, AL","$165,000", true));
-        list.add(new Property("4", "Luxury Smart Villa","Villa",    "2734 Lafayette, AL", "$275,800", true));
-        list.add(new Property("5", "Big Central Villa", "Villa",    "4632 Kent Dairy, AL","$310,000", true));
-        list.add(new Property("6", "Modern House",     "House",     "12 Silver St, AL",   "$198,000", false));
+        list.add(new Property("1", "Exclusive House",  "Apartment", "134 Alabaster, AL",  120000, false));
+        list.add(new Property("2", "Charming Villa",   "Villa",     "4735 Lafayette, AL", 250500, false));
+        list.add(new Property("3", "Blue Star Villa",  "Villa",     "4272 Kent Dairy, AL",165000, true));
+        list.add(new Property("4", "Luxury Smart Villa","Villa",    "2734 Lafayette, AL", 275800, true));
+        list.add(new Property("5", "Big Central Villa", "Villa",    "4632 Kent Dairy, AL",310000, true));
+        list.add(new Property("6", "Modern House",     "House",     "12 Silver St, AL",   198000, false));
         return list;
+    }
+
+    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
+        private final int spacing;
+
+        public GridSpacingItemDecoration(int spacing) {
+            this.spacing = spacing;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view,
+                                   RecyclerView parent, RecyclerView.State state) {
+            outRect.left = spacing;
+            outRect.right = spacing;
+            outRect.top = spacing;
+            outRect.bottom = spacing;
+        }
     }
 }
