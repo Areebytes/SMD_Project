@@ -9,18 +9,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME    = "property_app.db";
-    // Bumped to 5 to add "phone" column to the users table
     private static final int    DB_VERSION = 5;
 
-    // Users table
     private static final String TABLE_USERS      = "users";
     private static final String COL_UID          = "uid";
     private static final String COL_NAME         = "name";
     private static final String COL_EMAIL        = "email";
     private static final String COL_PHONE        = "phone";
-    private static final String COL_IS_SELLER    = "is_seller"; // 0 = buyer, 1 = seller/admin
+    private static final String COL_IS_SELLER    = "is_seller";
 
-    // Favourites table
     private static final String TABLE_FAVOURITES  = "favourites";
     private static final String COL_PROPERTY_ID   = "property_id";
     private static final String COL_PROPERTY_NAME = "property_name";
@@ -75,7 +72,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    // Overload for when phone is not available
     public void saveUser(String uid, String name, String email, boolean isSeller) {
         saveUser(uid, name, email, "", isSeller);
     }

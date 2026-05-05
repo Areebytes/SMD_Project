@@ -53,7 +53,6 @@ public class SellerProfileFragment extends Fragment {
 
         tvEmail.setText(user.getEmail());
 
-        // 1. Local sync
         Cursor cursor = dbHelper.getUser(user.getUid());
         if (cursor != null && cursor.moveToFirst()) {
             int nameCol = cursor.getColumnIndex("name");
@@ -61,7 +60,6 @@ public class SellerProfileFragment extends Fragment {
             cursor.close();
         }
 
-        // 2. Online sync
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists() && isAdded()) {

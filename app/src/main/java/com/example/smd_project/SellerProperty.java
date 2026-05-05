@@ -2,10 +2,6 @@ package com.example.smd_project;
 
 import java.io.Serializable;
 
-/**
- * Property model used by the seller side (Realtime Database).
- * Kept in the main package so both buyer and seller code can share it.
- */
 public class SellerProperty implements Serializable {
     private String id;
     private String title;
@@ -27,7 +23,6 @@ public class SellerProperty implements Serializable {
     private String ownerName;
     private String ownerPhone;
 
-    // Required empty constructor for Firebase deserialization
     public SellerProperty() {}
 
     public SellerProperty(String id, String title, double price, String location,

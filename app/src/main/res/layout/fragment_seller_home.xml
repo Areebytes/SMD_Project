@@ -6,7 +6,6 @@
     android:orientation="vertical"
     android:background="@color/bg_light">
 
-    <!-- Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,7 +35,6 @@
 
     </LinearLayout>
 
-    <!-- Properties list -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_seller_properties"
         android:layout_width="match_parent"

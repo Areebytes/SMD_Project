@@ -9,11 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
-/**
- * Main activity for seller / admin users.
- * Uses the same app package (com.example.smd_project), same theme, same bottom-nav style.
- * Bottom nav tabs: Home (listing) | Add Property | Profile
- */
+
 public class SellerMainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
@@ -63,7 +59,6 @@ public class SellerMainActivity extends AppCompatActivity {
         tx.commit();
     }
 
-    /** Logs the seller out and returns to role selection. */
     public void logout() {
         FirebaseAuth.getInstance().signOut();
         Intent intent = new Intent(this, AuthActivity.class);

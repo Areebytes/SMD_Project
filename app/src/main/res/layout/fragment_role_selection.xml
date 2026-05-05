@@ -38,7 +38,6 @@
             android:gravity="center"
             android:layout_marginBottom="56dp"/>
 
-        <!-- Buyer Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -60,7 +59,6 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Seller Card -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -127,69 +127,128 @@
             android:textColor="@color/primary"
             android:layout_marginBottom="12dp"/>
 
-        <!-- 2-column grid for numeric fields -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginBottom="12dp">
 
-            <EditText android:id="@+id/etBedrooms"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Bedrooms" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+            <EditText
+                android:id="@+id/etBedrooms"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Bedrooms"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"
                 android:layout_marginEnd="8dp"/>
-            <EditText android:id="@+id/etBathrooms"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Bathrooms" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+
+            <EditText
+                android:id="@+id/etBathrooms"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Bathrooms"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"/>
+
         </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:layout_marginBottom="12dp">
-            <EditText android:id="@+id/etLivingRooms"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Living Rooms" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <EditText
+                android:id="@+id/etLivingRooms"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Living Rooms"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"
                 android:layout_marginEnd="8dp"/>
-            <EditText android:id="@+id/etKitchen"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Kitchens" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+
+            <EditText
+                android:id="@+id/etKitchen"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Kitchens"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"/>
+
         </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:layout_marginBottom="12dp">
-            <EditText android:id="@+id/etGarage"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Garage" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <EditText
+                android:id="@+id/etGarage"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Garage"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"
                 android:layout_marginEnd="8dp"/>
-            <EditText android:id="@+id/etGarden"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Garden" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+
+            <EditText
+                android:id="@+id/etGarden"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Garden"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"/>
+
         </LinearLayout>
 
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:orientation="horizontal" android:layout_marginBottom="20dp">
-            <EditText android:id="@+id/etLivingArea"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Area (sq ft)" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <EditText
+                android:id="@+id/etLivingArea"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Area (sq ft)"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"
                 android:layout_marginEnd="8dp"/>
-            <EditText android:id="@+id/etYearBuilt"
-                android:layout_width="0dp" android:layout_height="56dp" android:layout_weight="1"
-                android:hint="Year Built" android:inputType="number"
-                android:paddingHorizontal="12dp" android:background="@drawable/bg_input_field"
+
+            <EditText
+                android:id="@+id/etYearBuilt"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:hint="Year Built"
+                android:inputType="number"
+                android:paddingHorizontal="12dp"
+                android:background="@drawable/bg_input_field"
                 android:textColor="@color/black"/>
+
         </LinearLayout>
 
         <ProgressBar

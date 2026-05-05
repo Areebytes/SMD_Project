@@ -11,7 +11,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Header -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,7 +45,6 @@
 
     </LinearLayout>
 
-    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/layout_empty_fav"
         android:layout_width="wrap_content"

@@ -19,10 +19,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Seller-side home: shows properties belonging to the current seller
- * from Firebase Realtime Database with Edit and Delete options.
- */
+
 public class SellerHomeFragment extends Fragment
         implements SellerPropertyAdapter.OnPropertyActionListener {
 
@@ -55,7 +52,6 @@ public class SellerHomeFragment extends Fragment
         String uid = FirebaseAuth.getInstance().getUid();
         if (uid == null) return;
 
-        // Query properties where ownerId matches current user
         dbRef.orderByChild("ownerId").equalTo(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -97,7 +93,6 @@ public class SellerHomeFragment extends Fragment
                     .addOnFailureListener(e ->
                             Toast.makeText(getContext(), "Delete failed", Toast.LENGTH_SHORT).show());
             
-            // Also delete from Firestore
             com.google.firebase.firestore.FirebaseFirestore.getInstance()
                     .collection("properties").document(property.getId()).delete();
         }

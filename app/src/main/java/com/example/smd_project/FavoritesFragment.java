@@ -42,7 +42,6 @@ public class FavoritesFragment extends Fragment {
         adapter = new PropertyAdapter(getContext(), favoriteList, property -> {
             if (property == null) return;
             Bundle bundle = new Bundle();
-            // Pass the entire Property object as it is Serializable
             bundle.putSerializable("property", property);
 
             PropertyDetailFragment detailFragment = new PropertyDetailFragment();
@@ -53,7 +52,6 @@ public class FavoritesFragment extends Fragment {
             }
         });
 
-        // 🔧 Refreshes list when an item is un-favorited from within this screen
         adapter.setOnFavoriteChangeListener((property, isFavorite) -> {
             if (!isFavorite) {
                 loadFavorites();

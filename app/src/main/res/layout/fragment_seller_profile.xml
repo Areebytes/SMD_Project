@@ -9,7 +9,6 @@
     android:padding="24dp"
     android:background="@color/bg_light">
 
-    <!-- Avatar circle -->
     <androidx.cardview.widget.CardView
         android:layout_width="100dp"
         android:layout_height="100dp"

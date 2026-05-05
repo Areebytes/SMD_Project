@@ -12,11 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import java.util.List;
 
-/**
- * RecyclerView adapter for the seller home screen.
- * Each card shows property info + Edit / Delete buttons.
- * Uses item_property_seller.xml which is styled like the buyer's item_property.xml.
- */
 public class SellerPropertyAdapter
         extends RecyclerView.Adapter<SellerPropertyAdapter.ViewHolder> {
 

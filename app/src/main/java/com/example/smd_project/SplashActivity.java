@@ -26,7 +26,6 @@ public class SplashActivity extends AppCompatActivity {
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
             if (currentUser != null) {
-                // Check locally stored role to decide which main screen to show
                 DatabaseHelper dbHelper = new DatabaseHelper(this);
                 boolean isSeller = dbHelper.isUserSeller(currentUser.getUid());
 

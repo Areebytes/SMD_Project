@@ -133,7 +133,6 @@ public class AddPropertyFragment extends Fragment {
             if (phoneIdx != -1) currentUserPhone = cursor.getString(phoneIdx);
             cursor.close();
         } else {
-            // Try Firestore if not in local DB
             firestore.collection("users").document(uid).get().addOnSuccessListener(doc -> {
                 if (doc.exists()) {
                     currentUserName = doc.getString("name");

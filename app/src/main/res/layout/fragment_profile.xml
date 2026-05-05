@@ -8,7 +8,6 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Header with Back Button -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,7 +32,6 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <!-- Profile Avatar Placeholder -->
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -61,7 +59,6 @@
         android:textColor="@color/text_muted"
         android:textSize="14sp" />
 
-    <!-- Action Buttons -->
     <Button
         android:id="@+id/btn_my_favorites"
         style="@style/Widget.Material3.Button.TonalButton"

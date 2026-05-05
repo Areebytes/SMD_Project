@@ -65,7 +65,6 @@ public class ProfileFragment extends Fragment {
 
         tvEmail.setText(user.getEmail());
 
-        // 1. Try local SQLite
         Cursor cursor = dbHelper.getUser(user.getUid());
         if (cursor != null && cursor.moveToFirst()) {
             int nameIdx = cursor.getColumnIndex("name");
@@ -77,7 +76,6 @@ public class ProfileFragment extends Fragment {
             cursor.close();
         }
 
-        // 2. Try Firestore
         db.collection("users").document(user.getUid()).get()
                 .addOnSuccessListener(doc -> {
                     if (doc.exists() && isAdded()) {

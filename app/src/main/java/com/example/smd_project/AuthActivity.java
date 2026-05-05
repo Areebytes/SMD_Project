@@ -13,7 +13,6 @@ public class AuthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_auth);
 
         if (savedInstanceState == null) {
-            // Always start with the role-selection screen
             loadFragment(new RoleSelectionFragment());
         }
     }

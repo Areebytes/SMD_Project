@@ -15,7 +15,6 @@ public class Property implements Serializable {
     private String  ownerName;
     private String  ownerPhone;
 
-    // Full constructor (10 arguments)
     public Property(String id, String name, String type,
                     String location, int price, boolean isFeatured, String imageUrl,
                     String description, String ownerName, String ownerPhone) {
@@ -31,7 +30,6 @@ public class Property implements Serializable {
         this.ownerPhone  = ownerPhone;
     }
 
-    // Overloaded constructor for 7 arguments (used in Favorites and Search Results)
     public Property(String id, String name, String type,
                     String location, int price, boolean isFeatured, String imageUrl) {
         this(id, name, type, location, price, isFeatured, imageUrl, "", "", "");

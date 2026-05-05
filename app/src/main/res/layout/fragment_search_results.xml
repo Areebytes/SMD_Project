@@ -12,7 +12,6 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Top bar -->
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +37,6 @@
 
         </RelativeLayout>
 
-        <!-- Search bar and Filter -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -82,7 +80,6 @@
 
         </LinearLayout>
 
-        <!-- Result count -->
         <TextView
             android:id="@+id/tv_result_count"
             android:layout_width="wrap_content"
@@ -91,7 +88,6 @@
             android:textSize="14sp"
             android:layout_marginBottom="16dp" />
 
-        <!-- Results list -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_results"
             android:layout_width="match_parent"
@@ -102,7 +98,6 @@
 
     </LinearLayout>
 
-    <!-- Empty State -->
     <LinearLayout
         android:id="@+id/layout_empty"
         android:layout_width="wrap_content"

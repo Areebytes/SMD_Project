@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (selectedFragment != null) {
-                // For bottom nav, we usually don't want to stack them if they are top-level
                 getSupportFragmentManager().beginTransaction()
                         .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right)
                         .replace(R.id.fragment_container, selectedFragment)
@@ -59,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
     
-    // Helper to update bottom nav selection when navigating via other buttons
     public void setSelectedNavItem(int itemId) {
         if (bottomNavigationView != null) {
             bottomNavigationView.setSelectedItemId(itemId);

@@ -9,11 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-/**
- * First screen shown to users. Lets them choose to continue as a Buyer or a Seller (admin).
- * The selected role is passed to LoginFragment / SignupFragment so they know which
- * MainActivity variant to launch after authentication.
- */
+
 public class RoleSelectionFragment extends Fragment {
 
     @Nullable

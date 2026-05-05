@@ -97,7 +97,6 @@ public class SearchResultsFragment extends Fragment {
             }
         });
 
-        // Filter Bottom Sheet Integration
         view.findViewById(R.id.btn_filter).setOnClickListener(v -> {
             FilterBottomSheet filterSheet = new FilterBottomSheet();
             filterSheet.setListener((type, min, max) -> {

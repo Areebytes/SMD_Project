@@ -38,7 +38,6 @@ public class FilterBottomSheet extends BottomSheetDialogFragment {
         EditText etMax = view.findViewById(R.id.et_max_price);
         Button btnApply = view.findViewById(R.id.btn_apply);
 
-        // Fix: Add Spinner Adapter
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 getContext(),
                 android.R.layout.simple_spinner_dropdown_item,

@@ -81,7 +81,6 @@ public class LoginFragment extends Fragment {
                 .addOnSuccessListener(result -> {
                     FirebaseUser user = mAuth.getCurrentUser();
                     if (user != null) {
-                        // Sync user data from Firestore to SQLite
                         db.collection("users").document(user.getUid()).get()
                                 .addOnSuccessListener(documentSnapshot -> {
                                     if (documentSnapshot.exists()) {
@@ -94,7 +93,6 @@ public class LoginFragment extends Fragment {
                                     launchMainActivity();
                                 })
                                 .addOnFailureListener(e -> {
-                                    // Fallback if firestore fails
                                     progressBar.setVisibility(View.GONE);
                                     launchMainActivity();
                                 });
