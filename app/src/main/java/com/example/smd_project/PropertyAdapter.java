@@ -24,6 +24,15 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
     private DatabaseHelper dbHelper;
     private Context context;
     private OnItemClickListener listener;
+    private OnFavoriteChangeListener favoriteChangeListener;
+
+    public interface OnFavoriteChangeListener {
+        void onFavoriteChanged(Property property, boolean isFavorite);
+    }
+
+    public void setOnFavoriteChangeListener(OnFavoriteChangeListener listener) {
+        this.favoriteChangeListener = listener;
+    }
 
     public PropertyAdapter(Context context, List<Property> propertyList, OnItemClickListener listener) {
         this.context = context;
@@ -32,9 +41,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
         this.dbHelper = new DatabaseHelper(context);
     }
 
-    /**
-     * Updates the list using DiffUtil for better performance and smoother animations.
-     */
     public void updateList(List<Property> newList) {
         if (newList == null) return;
 
@@ -66,8 +72,8 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
                 return oldItem.getName().equals(newItem.getName()) &&
                         oldItem.getPrice() == newItem.getPrice() &&
                         oldItem.isFeatured() == newItem.isFeatured() &&
-                        oldItem.getType().equals(newItem.getType()) &&
-                        oldItem.getLocation().equals(newItem.getLocation()) &&
+                        (oldItem.getType() != null && oldItem.getType().equals(newItem.getType())) &&
+                        (oldItem.getLocation() != null && oldItem.getLocation().equals(newItem.getLocation())) &&
                         String.valueOf(oldItem.getImageUrl()).equals(String.valueOf(newItem.getImageUrl()));
             }
         });
@@ -89,7 +95,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
         Property p = propertyList.get(position);
         if (p == null) return;
 
-        // 🔧 FIX: Crash prevention for type.toUpperCase()
         String type = p.getType() != null ? p.getType() : "";
         holder.tvType.setText(type.toUpperCase());
         
@@ -99,7 +104,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
         
         holder.tvFeatured.setVisibility(p.isFeatured() ? View.VISIBLE : View.GONE);
         
-        // 🔥 Glide for high-performance image loading
         if (p.getImageUrl() != null && !p.getImageUrl().isEmpty()) {
             Glide.with(context)
                     .load(p.getImageUrl())
@@ -132,7 +136,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
                     dbHelper.removeFavourite(propertyId, userId);
                     holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_off);
                 } else {
-                    // Match the 8-argument signature in DatabaseHelper v3
                     dbHelper.addFavourite(
                             userId,
                             propertyId,
@@ -144,6 +147,9 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyAdapter.ViewHo
                             p.isFeatured()
                     );
                     holder.btnFavorite.setImageResource(android.R.drawable.btn_star_big_on);
+                }
+                if (favoriteChangeListener != null) {
+                    favoriteChangeListener.onFavoriteChanged(p, !currentlyFav);
                 }
             });
         }

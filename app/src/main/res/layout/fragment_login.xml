@@ -24,7 +24,9 @@
         android:textStyle="bold"
         android:textColor="@color/primary" />
 
+    <!-- Dynamic subtitle: "Login as Buyer" or "Login as Seller / Admin" -->
     <TextView
+        android:id="@+id/tv_login_subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login to your account"
@@ -40,6 +42,7 @@
         android:inputType="textEmailAddress"
         android:paddingHorizontal="16dp"
         android:background="@drawable/bg_input_field"
+        android:textColor="@color/black"
         android:layout_marginBottom="16dp" />
 
     <EditText
@@ -50,6 +53,7 @@
         android:inputType="textPassword"
         android:paddingHorizontal="16dp"
         android:background="@drawable/bg_input_field"
+        android:textColor="@color/black"
         android:layout_marginBottom="24dp" />
 
     <ProgressBar
@@ -71,7 +75,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:cornerRadius="12dp"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:id="@+id/tv_signup"
@@ -80,6 +84,16 @@
         android:text="Don't have an account? Sign Up"
         android:textColor="@color/accent"
         android:textStyle="bold"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:layout_marginBottom="16dp"/>
+
+    <!-- Back to role selection -->
+    <TextView
+        android:id="@+id/tv_back_role"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="← Change role"
+        android:textColor="@color/text_muted"
+        android:textSize="13sp" />
 
 </LinearLayout>

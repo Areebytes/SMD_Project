@@ -39,13 +39,7 @@ public class SearchResultsFragment extends Fragment {
         adapter = new PropertyAdapter(getContext(), allProperties, property -> {
             if (property == null) return;
             Bundle bundle = new Bundle();
-            bundle.putString("id", property.getId());
-            bundle.putString("name", property.getName());
-            bundle.putString("type", property.getType());
-            bundle.putString("location", property.getLocation());
-            bundle.putInt("price", property.getPrice());
-            bundle.putBoolean("featured", property.isFeatured());
-            bundle.putString("imageUrl", property.getImageUrl());
+            bundle.putSerializable("property", property);
 
             PropertyDetailFragment detailFragment = new PropertyDetailFragment();
             detailFragment.setArguments(bundle);
@@ -64,6 +58,9 @@ public class SearchResultsFragment extends Fragment {
                     
                     allProperties.clear();
                     for (var doc : queryDocumentSnapshots) {
+                        String id = doc.getString("id");
+                        if (id == null) id = doc.getId();
+
                         Object featuredObj = doc.get("featured");
                         boolean featured = false;
                         if (featuredObj instanceof Boolean) {
@@ -76,7 +73,7 @@ public class SearchResultsFragment extends Fragment {
                         int price = (priceLong != null) ? priceLong.intValue() : 0;
 
                         Property property = new Property(
-                                doc.getString("id"),
+                                id,
                                 doc.getString("name"),
                                 doc.getString("type"),
                                 doc.getString("location"),

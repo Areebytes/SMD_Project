@@ -6,4 +6,10 @@
         <item>Apartment</item>
         <item>House</item>
     </string-array>
+
+    <string-array name="add_property_types">
+        <item>Villa</item>
+        <item>Apartment</item>
+        <item>House</item>
+    </string-array>
 </resources>

@@ -85,7 +85,7 @@
                     android:paddingStart="12dp"
                     android:textSize="14sp"
                     android:focusable="false"
-                    android:textColor="@color/text_main" />
+                    android:textColor="@color/black" />
             </LinearLayout>
 
             <ImageButton

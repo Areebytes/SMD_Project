@@ -1,20 +1,26 @@
 package com.example.smd_project;
 
+import android.database.Cursor;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class HomeFragment extends Fragment {
 
@@ -23,37 +29,30 @@ public class HomeFragment extends Fragment {
     private List<Property>   allProperties;
     private FirebaseFirestore db;
     private ProgressBar      progressBar;
+    private DatabaseHelper   dbHelper;
+    private ListenerRegistration registration;
+    private TextView tvGreeting;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        TextView tvGreeting = view.findViewById(R.id.tv_greeting);
+        tvGreeting = view.findViewById(R.id.tv_greeting);
         progressBar = view.findViewById(R.id.progress_bar);
-        
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        if (auth.getCurrentUser() != null) {
-            String email = auth.getCurrentUser().getEmail();
-            tvGreeting.setText("Hello, " + (email != null ? email : "User"));
-        }
-
+        dbHelper = new DatabaseHelper(getContext());
         db = FirebaseFirestore.getInstance();
-        allProperties = new ArrayList<>();
+        
+        updateGreeting();
 
+        allProperties = new ArrayList<>();
         recyclerView = view.findViewById(R.id.recycler_properties);
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 2));
         
         adapter = new PropertyAdapter(getContext(), allProperties, property -> {
             if (property == null) return;
             Bundle bundle = new Bundle();
-            bundle.putString("id", property.getId());
-            bundle.putString("name", property.getName());
-            bundle.putString("type", property.getType());
-            bundle.putString("location", property.getLocation());
-            bundle.putInt("price", property.getPrice());
-            bundle.putBoolean("featured", property.isFeatured());
-            bundle.putString("imageUrl", property.getImageUrl());
+            bundle.putSerializable("property", property);
 
             PropertyDetailFragment detailFragment = new PropertyDetailFragment();
             detailFragment.setArguments(bundle);
@@ -69,42 +68,7 @@ public class HomeFragment extends Fragment {
             recyclerView.addItemDecoration(new GridSpacingItemDecoration(16));
         }
 
-        progressBar.setVisibility(View.VISIBLE);
-        db.collection("properties")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    if (isAdded()) {
-                        progressBar.setVisibility(View.GONE);
-                        allProperties.clear();
-                        for (var doc : queryDocumentSnapshots) {
-                            Object featuredObj = doc.get("featured");
-                            boolean featured = false;
-                            if (featuredObj instanceof Boolean) {
-                                featured = (Boolean) featuredObj;
-                            } else if (featuredObj instanceof String) {
-                                featured = Boolean.parseBoolean((String) featuredObj);
-                            }
-
-                            Long priceLong = doc.getLong("price");
-                            int price = (priceLong != null) ? priceLong.intValue() : 0;
-
-                            Property property = new Property(
-                                    doc.getString("id"),
-                                    doc.getString("name"),
-                                    doc.getString("type"),
-                                    doc.getString("location"),
-                                    price,
-                                    featured,
-                                    doc.getString("image")
-                            );
-                            allProperties.add(property);
-                        }
-                        adapter.updateList(new ArrayList<>(allProperties));
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (isAdded()) progressBar.setVisibility(View.GONE);
-                });
+        startPropertyListener();
 
         view.findViewById(R.id.chip_all).setOnClickListener(v ->
                 adapter.updateList(new ArrayList<>(allProperties)));
@@ -149,7 +113,6 @@ public class HomeFragment extends Fragment {
             filterSheet.show(getChildFragmentManager(), "FilterBottomSheet");
         });
 
-        // 🔧 UI Polish: Navigation to Profile
         view.findViewById(R.id.btn_profile).setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).loadFragment(new ProfileFragment());
@@ -157,6 +120,93 @@ public class HomeFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void updateGreeting() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) return;
+
+        Cursor cursor = dbHelper.getUser(currentUser.getUid());
+        if (cursor != null && cursor.moveToFirst()) {
+            int nameIndex = cursor.getColumnIndex("name");
+            if (nameIndex != -1) {
+                String name = cursor.getString(nameIndex);
+                tvGreeting.setText("Hello, " + name);
+                cursor.close();
+                return;
+            }
+            cursor.close();
+        }
+
+        db.collection("users").document(currentUser.getUid()).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && isAdded()) {
+                        String name = doc.getString("name");
+                        if (name != null) {
+                            tvGreeting.setText("Hello, " + name);
+                            String phone = doc.getString("phone");
+                            boolean isSeller = doc.getBoolean("isSeller") != null && doc.getBoolean("isSeller");
+                            dbHelper.saveUser(currentUser.getUid(), name, currentUser.getEmail(), phone, isSeller);
+                        }
+                    }
+                });
+
+        String email = currentUser.getEmail();
+        tvGreeting.setText("Hello, " + (email != null ? email.split("@")[0] : "User"));
+    }
+
+    private void startPropertyListener() {
+        progressBar.setVisibility(View.VISIBLE);
+        registration = db.collection("properties")
+                .addSnapshotListener((value, error) -> {
+                    if (isAdded()) {
+                        progressBar.setVisibility(View.GONE);
+                        if (error != null) {
+                            Log.e("HomeFragment", "Firestore Listen failed", error);
+                            return;
+                        }
+
+                        if (value != null) {
+                            allProperties.clear();
+                            for (QueryDocumentSnapshot doc : value) {
+                                String id = doc.getString("id");
+                                if (id == null) id = doc.getId();
+
+                                Object featuredObj = doc.get("featured");
+                                boolean featured = false;
+                                if (featuredObj instanceof Boolean) {
+                                    featured = (Boolean) featuredObj;
+                                } else if (featuredObj instanceof String) {
+                                    featured = Boolean.parseBoolean((String) featuredObj);
+                                }
+
+                                Long priceLong = doc.getLong("price");
+                                int price = (priceLong != null) ? priceLong.intValue() : 0;
+
+                                Property property = new Property(
+                                        id,
+                                        doc.getString("name"),
+                                        doc.getString("type"),
+                                        doc.getString("location"),
+                                        price,
+                                        featured,
+                                        doc.getString("image"),
+                                        doc.getString("description"),
+                                        doc.getString("ownerName"),
+                                        doc.getString("ownerPhone")
+                                );
+                                allProperties.add(property);
+                            }
+                            adapter.updateList(new ArrayList<>(allProperties));
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (registration != null) registration.remove();
     }
 
     private List<Property> filterByType(String type) {
@@ -177,8 +227,8 @@ public class HomeFragment extends Fragment {
         }
 
         @Override
-        public void getItemOffsets(Rect outRect, View view,
-                                   RecyclerView parent, RecyclerView.State state) {
+        public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                                   @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
             outRect.left = spacing;
             outRect.right = spacing;
             outRect.top = spacing;

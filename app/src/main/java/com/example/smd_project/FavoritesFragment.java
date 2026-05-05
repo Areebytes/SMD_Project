@@ -21,31 +21,29 @@ import java.util.List;
 public class FavoritesFragment extends Fragment {
 
     private PropertyAdapter adapter;
-    private List<Property> favoriteList;
-    private DatabaseHelper dbHelper;
-    private LinearLayout layoutEmpty;
+    private List<Property>  favoriteList;
+    private DatabaseHelper  dbHelper;
+    private LinearLayout    layoutEmpty;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_favorites, container, false);
 
-        dbHelper = new DatabaseHelper(getContext());
+        dbHelper     = new DatabaseHelper(getContext());
         favoriteList = new ArrayList<>();
-        layoutEmpty = view.findViewById(R.id.layout_empty_fav);
+        layoutEmpty  = view.findViewById(R.id.layout_empty_fav);
 
         RecyclerView recyclerView = view.findViewById(R.id.recycler_favorites);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new PropertyAdapter(getContext(), favoriteList, property -> {
+            if (property == null) return;
             Bundle bundle = new Bundle();
-            bundle.putString("id", property.getId());
-            bundle.putString("name", property.getName());
-            bundle.putString("type", property.getType());
-            bundle.putString("location", property.getLocation());
-            bundle.putInt("price", property.getPrice());
-            bundle.putBoolean("featured", property.isFeatured());
-            bundle.putString("imageUrl", property.getImageUrl());
+            // Pass the entire Property object as it is Serializable
+            bundle.putSerializable("property", property);
 
             PropertyDetailFragment detailFragment = new PropertyDetailFragment();
             detailFragment.setArguments(bundle);
@@ -55,8 +53,14 @@ public class FavoritesFragment extends Fragment {
             }
         });
 
-        recyclerView.setAdapter(adapter);
+        // 🔧 Refreshes list when an item is un-favorited from within this screen
+        adapter.setOnFavoriteChangeListener((property, isFavorite) -> {
+            if (!isFavorite) {
+                loadFavorites();
+            }
+        });
 
+        recyclerView.setAdapter(adapter);
         loadFavorites();
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
@@ -77,24 +81,16 @@ public class FavoritesFragment extends Fragment {
 
         if (cursor != null) {
             while (cursor.moveToNext()) {
-                String id = cursor.getString(cursor.getColumnIndexOrThrow("property_id"));
-                String name = cursor.getString(cursor.getColumnIndexOrThrow("property_name"));
-                String priceStr = cursor.getString(cursor.getColumnIndexOrThrow("price"));
-                String location = cursor.getString(cursor.getColumnIndexOrThrow("location"));
-                
-                // Note: The Favorites table doesn't store 'type', 'featured', or 'image' 
-                // in the current schema. To keep the UI consistent, we might need dummy data
-                // or fetch from Firestore. For now, we use defaults.
-                Property p = new Property(
-                        id,
-                        name,
-                        "Apartment", // Default
-                        location,
-                        Integer.parseInt(priceStr),
-                        false, // Default
-                        null   // Default
-                );
-                favoriteList.add(p);
+                String  id         = cursor.getString(cursor.getColumnIndexOrThrow("property_id"));
+                String  name       = cursor.getString(cursor.getColumnIndexOrThrow("property_name"));
+                int     price      = cursor.getInt(cursor.getColumnIndexOrThrow("price"));
+                String  location   = cursor.getString(cursor.getColumnIndexOrThrow("location"));
+                String  type       = cursor.getString(cursor.getColumnIndexOrThrow("type"));
+                String  imageUrl   = cursor.getString(cursor.getColumnIndexOrThrow("image_url"));
+                boolean isFeatured = cursor.getInt(cursor.getColumnIndexOrThrow("is_featured")) == 1;
+
+                // This constructor now exists in Property.java
+                favoriteList.add(new Property(id, name, type, location, price, isFeatured, imageUrl));
             }
             cursor.close();
         }

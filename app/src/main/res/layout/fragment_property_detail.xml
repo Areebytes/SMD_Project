@@ -36,6 +36,7 @@
                     android:id="@+id/btn_back"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
+                    android:layout_marginStart="16dp"
                     android:background="@drawable/bg_circle_white"
                     android:src="@android:drawable/ic_menu_revert"
                     android:padding="8dp"
@@ -122,7 +123,7 @@
                 android:lineSpacingExtra="4dp"
                 android:textColor="@color/text_muted"
                 android:textSize="15sp"
-                android:text="Experience luxury living in this stunning property. Featuring modern architecture, high-end finishes, and spacious interiors, this home offers the perfect blend of comfort and style. Located in a prime neighborhood with easy access to amenities." />
+                android:text="No description available." />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -152,9 +153,10 @@
                         android:textSize="12sp" />
 
                     <TextView
+                        android:id="@+id/tv_agent_name"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Brian Cumin"
+                        android:text="Agent Name"
                         android:textColor="@color/text_main"
                         android:textSize="16sp"
                         android:textStyle="bold" />

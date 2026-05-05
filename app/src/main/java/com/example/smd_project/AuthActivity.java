@@ -11,29 +11,19 @@ public class AuthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_auth);
-        
-        if (savedInstanceState == null) {
-            loadInitialFragment(new LoginFragment());
-        }
-    }
 
-    private void loadInitialFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.auth_container, fragment)
-                .commit();
+        if (savedInstanceState == null) {
+            // Always start with the role-selection screen
+            loadFragment(new RoleSelectionFragment());
+        }
     }
 
     public void loadFragment(Fragment fragment) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        
-        // 🔧 UI Polish: Add smooth custom animations for fragment transitions
         transaction.setCustomAnimations(
-                R.anim.slide_in_right, 
-                R.anim.slide_out_left, 
-                R.anim.slide_in_left, 
-                R.anim.slide_out_right
+                R.anim.slide_in_right, R.anim.slide_out_left,
+                R.anim.slide_in_left,  R.anim.slide_out_right
         );
-        
         transaction.replace(R.id.auth_container, fragment);
         transaction.addToBackStack(null);
         transaction.commit();

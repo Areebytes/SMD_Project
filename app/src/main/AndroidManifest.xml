@@ -2,6 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Required for Firebase and image upload -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Image picker: Android ≤12 needs READ_EXTERNAL_STORAGE -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <!-- Android 13+ uses READ_MEDIA_IMAGES -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,22 +21,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SMD_Project">
+
+        <!-- Entry point -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
+        <!-- Auth (buyer + seller, role selected here) -->
+        <activity
+            android:name=".AuthActivity"
+            android:exported="false" />
+
+        <!-- Buyer main -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
 
+        <!-- Seller / Admin main -->
         <activity
-            android:name=".AuthActivity"
+            android:name=".SellerMainActivity"
             android:exported="false" />
 
     </application>

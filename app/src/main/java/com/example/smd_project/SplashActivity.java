@@ -1,14 +1,14 @@
 package com.example.smd_project;
 
-import android.os.Bundle;
-import android.widget.ImageView;
-import androidx.appcompat.app.AppCompatActivity;
-import android.os.Handler;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.ImageView;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -21,17 +21,26 @@ public class SplashActivity extends AppCompatActivity {
 
         splashLogo = findViewById(R.id.sLogo);
 
-        // 🔧 UI Polish: Add a smooth fade-in animation
         splashLogo.animate().alpha(1f).setDuration(1500).start();
 
-        new Handler().postDelayed(() -> {
-            // Check if user is already logged in
-            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                // Check locally stored role to decide which main screen to show
+                DatabaseHelper dbHelper = new DatabaseHelper(this);
+                boolean isSeller = dbHelper.isUserSeller(currentUser.getUid());
+
+                Intent intent;
+                if (isSeller) {
+                    intent = new Intent(SplashActivity.this, SellerMainActivity.class);
+                } else {
+                    intent = new Intent(SplashActivity.this, MainActivity.class);
+                }
+                startActivity(intent);
             } else {
                 startActivity(new Intent(SplashActivity.this, AuthActivity.class));
             }
             finish();
-        }, 3000); // Reduced delay to 3 seconds for better UX
+        }, 1500);
     }
 }

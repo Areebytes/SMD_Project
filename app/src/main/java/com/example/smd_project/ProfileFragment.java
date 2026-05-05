@@ -14,11 +14,14 @@ import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class ProfileFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private DatabaseHelper dbHelper;
+    private FirebaseFirestore db;
+    private TextView tvName, tvEmail;
 
     @Nullable
     @Override
@@ -27,26 +30,12 @@ public class ProfileFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         dbHelper = new DatabaseHelper(getContext());
+        db = FirebaseFirestore.getInstance();
 
-        TextView tvName = view.findViewById(R.id.tv_profile_name);
-        TextView tvEmail = view.findViewById(R.id.tv_profile_email);
+        tvName = view.findViewById(R.id.tv_profile_name);
+        tvEmail = view.findViewById(R.id.tv_profile_email);
 
-        FirebaseUser user = mAuth.getCurrentUser();
-        if (user != null) {
-            tvEmail.setText(user.getEmail());
-            
-            // Try to get name from SQLite
-            Cursor cursor = dbHelper.getUser(user.getUid());
-            if (cursor != null && cursor.moveToFirst()) {
-                int nameIndex = cursor.getColumnIndex("name");
-                if (nameIndex != -1) {
-                    tvName.setText(cursor.getString(nameIndex));
-                }
-                cursor.close();
-            } else {
-                tvName.setText("User");
-            }
-        }
+        loadUserData();
 
         view.findViewById(R.id.btn_back).setOnClickListener(v -> {
             if (getActivity() != null) {
@@ -61,7 +50,6 @@ public class ProfileFragment extends Fragment {
             startActivity(intent);
         });
 
-        // 🔧 UI Polish: Navigate to Favorites screen
         view.findViewById(R.id.btn_my_favorites).setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
                 ((MainActivity) getActivity()).loadFragment(new FavoritesFragment());
@@ -69,5 +57,38 @@ public class ProfileFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void loadUserData() {
+        FirebaseUser user = mAuth.getCurrentUser();
+        if (user == null) return;
+
+        tvEmail.setText(user.getEmail());
+
+        // 1. Try local SQLite
+        Cursor cursor = dbHelper.getUser(user.getUid());
+        if (cursor != null && cursor.moveToFirst()) {
+            int nameIdx = cursor.getColumnIndex("name");
+            if (nameIdx != -1) {
+                tvName.setText(cursor.getString(nameIdx));
+                cursor.close();
+                return;
+            }
+            cursor.close();
+        }
+
+        // 2. Try Firestore
+        db.collection("users").document(user.getUid()).get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists() && isAdded()) {
+                        String name = doc.getString("name");
+                        tvName.setText(name != null ? name : "User");
+                        
+                        // Sync to local
+                        String phone = doc.getString("phone");
+                        boolean isSeller = doc.getBoolean("isSeller") != null && doc.getBoolean("isSeller");
+                        dbHelper.saveUser(user.getUid(), name, user.getEmail(), phone, isSeller);
+                    }
+                });
     }
 }
